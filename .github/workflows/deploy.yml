@@ -50,8 +50,11 @@ jobs:
           server: ${{ secrets.TOPHOST_FTP_SERVER }}
           username: ${{ secrets.TOPHOST_FTP_USERNAME }}
           password: ${{ secrets.TOPHOST_FTP_PASSWORD }}
+          protocol: ${{ secrets.TOPHOST_FTP_PROTOCOL || 'ftp' }}
+          port: ${{ secrets.TOPHOST_FTP_PORT || 21 }}
           local-dir: ./.output/public/
           server-dir: ${{ secrets.TOPHOST_FTP_DIR }}
+          timeout: 60000
           dangerous-clean-slate: false
           exclude: |
             **/.git*
@@ -64,8 +67,11 @@ jobs:
           server: ${{ secrets.TOPHOST_FTP_SERVER }}
           username: ${{ secrets.TOPHOST_FTP_USERNAME }}
           password: ${{ secrets.TOPHOST_FTP_PASSWORD }}
+          protocol: ${{ secrets.TOPHOST_FTP_PROTOCOL || 'ftp' }}
+          port: ${{ secrets.TOPHOST_FTP_PORT || 21 }}
           local-dir: ./.output/public/prj/
           server-dir: ${{ secrets.TOPHOST_FTP_DIR }}prj/
+          timeout: 60000
           dangerous-clean-slate: false
           exclude: |
             **/.git*

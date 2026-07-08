@@ -148,10 +148,38 @@ TOPHOST_FTP_PASSWORD
 TOPHOST_FTP_DIR
 ```
 
+Secret opzionali, utili se il provider richiede un protocollo o una porta
+diversi:
+
+```text
+TOPHOST_FTP_PROTOCOL
+TOPHOST_FTP_PORT
+```
+
+Valori tipici:
+
+```text
+TOPHOST_FTP_PROTOCOL=ftp
+TOPHOST_FTP_PORT=21
+```
+
+Oppure, se Tophost richiede FTPS:
+
+```text
+TOPHOST_FTP_PROTOCOL=ftps
+TOPHOST_FTP_PORT=21
+```
+
 `TOPHOST_FTP_DIR` dipende dalla cartella pubblica indicata da Tophost, spesso
 la root FTP del dominio o una cartella tipo `/htdocs/`. Deve finire con `/`,
 perché il workflow usa anche `${TOPHOST_FTP_DIR}prj/` per aggiornare la pagina
 dei progetti senza toccare il resto della cartella.
+
+Se il deploy fallisce con `ETIMEDOUT` sulla porta `21`, significa che GitHub
+non riesce ad aprire la connessione FTP verso il server indicato. In quel caso
+controlla nel pannello Tophost che host, protocollo e porta siano quelli
+corretti. Se il servizio fosse solo SFTP, questo workflow va cambiato perché
+`SamKirkland/FTP-Deploy-Action` supporta FTP/FTPS, non SFTP.
 
 Dopo aver configurato i secret:
 
