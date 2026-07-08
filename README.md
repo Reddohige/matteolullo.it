@@ -1,10 +1,14 @@
 # MatteoLullo.it
 
-Applicativo Nuxt + Vue con Tailwind CSS.
+Applicativo Nuxt + Vue con Tailwind CSS per il sito personale
+`matteolullo.it`.
+
+Il progetto genera un sito statico pubblicabile su Tophost caricando il
+contenuto di `.output/public`.
 
 ### Sviluppo locale
 
-Usa Node 22 o superiore compatibile con Nuxt:
+Usa la versione Node indicata nel file `.nvmrc`:
 
 ```bash
 nvm install
@@ -23,17 +27,135 @@ Avvia il server locale:
 yarn dev
 ```
 
-### Build statica per Tophost
-
-Genera il sito statico:
+Il sito locale viene servito da Nuxt, di solito su:
 
 ```bash
-yarn generate
+http://localhost:3000
 ```
 
-Carica via FTP il contenuto della cartella `.output/public` nella root del sito su Tophost.
+La rotta dei progetti e tool personali è:
 
-Gli asset pubblici vanno messi in `public/`: per esempio `public/img/io-def.png`, `public/img/io-corporate.jpeg`, `public/img/bg-r.jpg` e `public/doc/Matteo_Lullo_CV.pdf`.
+```bash
+http://localhost:3000/prj/
+```
+
+### Qualità codice e pre-commit
+
+Il progetto usa:
+
+- ESLint per il controllo del codice Nuxt/Vue.
+- Prettier per la formattazione.
+- Husky per bloccare il commit se i controlli falliscono.
+
+Controllo completo:
+
+```bash
+yarn quality
+```
+
+Questo comando esegue:
+
+```bash
+yarn lint
+yarn format:check
+yarn build
+```
+
+Quando fai un commit:
+
+```bash
+git commit -m "messaggio"
+```
+
+Husky lancia automaticamente `yarn quality`. Se lint, formattazione o build
+falliscono, il commit viene fermato.
+
+### Build statica per Tophost
+
+Genera il sito statico con:
+
+```bash
+yarn build
+```
+
+Il risultato da caricare via FTP su Tophost è:
+
+```bash
+.output/public
+```
+
+Carica il contenuto di quella cartella nella root pubblica del sito Tophost,
+così `www.matteolullo.it` troverà il file `index.html` generato.
+
+Gli asset pubblici vanno messi in `public/`: per esempio
+`public/img/io-def.png`, `public/img/io-corporate.jpeg`, `public/img/bg-r.jpg`
+e `public/doc/Matteo_Lullo_CV.pdf`.
+
+### Deploy automatico con GitHub Actions
+
+Puoi far fare la build a GitHub e pubblicare automaticamente su Tophost via
+FTP a ogni push su `main`.
+
+Il workflow è già presente in:
+
+```bash
+.github/workflows/deploy.yml
+```
+
+Il workflow parte automaticamente quando fai push su `main`. Puoi anche
+lanciarlo a mano da GitHub nella tab `Actions`, perché è abilitato
+`workflow_dispatch`.
+
+La pipeline fa:
+
+```bash
+yarn install --frozen-lockfile
+yarn quality
+```
+
+Poi carica via FTP il contenuto di:
+
+```bash
+.output/public
+```
+
+Il deploy è diviso in due parti:
+
+- carica la root del sito escludendo `prj/**`;
+- carica solo i file generati in `.output/public/prj/` dentro la cartella
+  remota `prj/`.
+
+In entrambi i passaggi `dangerous-clean-slate` è disattivato, quindi l'action
+non svuota le cartelle remote prima dell'upload. Questo serve a non cancellare
+gli altri tool già presenti via FTP dentro `/prj/`.
+
+Su GitHub aggiungi i secret in:
+
+```text
+Settings -> Secrets and variables -> Actions -> New repository secret
+```
+
+Secret consigliati:
+
+```text
+TOPHOST_FTP_SERVER
+TOPHOST_FTP_USERNAME
+TOPHOST_FTP_PASSWORD
+TOPHOST_FTP_DIR
+```
+
+`TOPHOST_FTP_DIR` dipende dalla cartella pubblica indicata da Tophost, spesso
+la root FTP del dominio o una cartella tipo `/htdocs/`. Deve finire con `/`,
+perché il workflow usa anche `${TOPHOST_FTP_DIR}prj/` per aggiornare la pagina
+dei progetti senza toccare il resto della cartella.
+
+Dopo aver configurato i secret:
+
+```bash
+git add .
+git commit -m "Add Tophost deploy workflow"
+git push origin main
+```
 
 ### Licenza
 
