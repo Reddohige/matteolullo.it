@@ -9,12 +9,29 @@
     "dev": "nuxt dev",
     "build": "nuxt build",
     "generate": "nuxt generate",
-    "preview": "nuxt preview"
+    "lint": "nuxt prepare && eslint .",
+    "lint:fix": "nuxt prepare && eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "preview": "nuxt preview",
+    "prepare": "husky",
+    "quality": "yarn lint && yarn format:check && yarn build"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
     "nuxt": "^4.4.8",
     "tailwindcss": "^4.3.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@nuxt/eslint": "^1.16.0",
+    "eslint": "^10.6.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.8",
+    "prettier": "^3.9.4",
+    "typescript": "^6.0.3"
+  },
+  "lint-staged": {
+    "*.{js,ts,vue}": "eslint --fix",
+    "*.{css,html,json,md,mjs,ts,vue,yml,yaml}": "prettier --write"
+  }
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = "matteolullo-it-v2";
+const CACHE_NAME = "matteolullo-it-v3";
 const PRECACHE_URLS = [
   "/",
   "/200.html",

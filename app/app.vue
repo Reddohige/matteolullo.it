@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const route = useRoute();
 const language = ref<"it" | "en">("it");
 const mode = ref<"matteoOS" | "corporate">("matteoOS");
 const bootVisible = ref(true);
@@ -22,12 +23,13 @@ const buildLoopScripts = {
     "return repeat();",
   ],
 } as const;
-const displayedBuildLines = ref<string[]>(Array(6).fill(""));
+const displayedBuildLines = ref<string[]>(["waiting for runtime...", "", "", "", "", ""]);
 const activeBuildLine = ref(0);
-const buildLoopBootDelay = 7200;
-const buildLoopTypeDelay = 72;
-const buildLoopLineDelay = 620;
-const offlineCacheName = "matteolullo-it-v2";
+const bootLoaderDuration = 6500;
+const buildLoopBootDelay = 5200;
+const buildLoopTypeDelay = 82;
+const buildLoopLineDelay = 700;
+const offlineCacheName = "matteolullo-it-v3";
 const offlineStaticUrls = [
   "/",
   "/200.html",
@@ -41,6 +43,7 @@ const offlineStaticUrls = [
 ];
 
 const isCorporate = computed(() => mode.value === "corporate");
+const isProjectRoute = computed(() => route.path === "/prj" || route.path === "/prj/");
 
 let buildLoopTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -185,19 +188,15 @@ const goCorporate = () => {
 
 onMounted(() => {
   const savedLanguage = localStorage.getItem("preferredLanguage");
-  const browserLanguage = navigator.language.toLowerCase().startsWith("en")
-    ? "en"
-    : "it";
+  const browserLanguage = navigator.language.toLowerCase().startsWith("en") ? "en" : "it";
   const savedMode = localStorage.getItem("preferredMode");
 
   setLanguage(
-    savedLanguage === "en" || savedLanguage === "it"
-      ? savedLanguage
-      : browserLanguage,
+    savedLanguage === "en" || savedLanguage === "it" ? savedLanguage : browserLanguage,
   );
   setMode(savedMode === "corporate" ? "corporate" : "matteoOS");
 
-  if (mode.value === "matteoOS") {
+  if (!isProjectRoute.value && mode.value === "matteoOS") {
     buildLoopTimer = setTimeout(startBuildLoopTyping, buildLoopBootDelay);
   }
 
@@ -208,10 +207,15 @@ onMounted(() => {
 
   window.setTimeout(() => {
     bootVisible.value = false;
-  }, 6500);
+  }, bootLoaderDuration);
 });
 
 watch([language, mode], ([, nextMode]) => {
+  if (isProjectRoute.value) {
+    clearBuildLoopTimer();
+    return;
+  }
+
   if (nextMode === "matteoOS") {
     startBuildLoopTyping();
     return;
@@ -234,30 +238,11 @@ onUnmounted(() => {
 
 <template>
   <div>
-    <div
-      class="boot-loader"
-      :class="{ 'is-hidden': !bootVisible }"
-      aria-label="Caricamento sito"
-      aria-live="polite"
-    >
-      <div class="boot-box">
-        <p class="boot-kicker">&gt; boot MatteoOS</p>
-        <p class="boot-title">Cowabunga!</p>
-        <ul class="boot-steps">
-          <li class="boot-step">loading creative systems...</li>
-          <li class="boot-step">syncing community memories...</li>
-          <li class="boot-step">warming up pixel engine...</li>
-          <li class="boot-step">preparing corporate profile...</li>
-          <li class="boot-step">ready to build.</li>
-        </ul>
-        <div class="boot-progress" aria-hidden="true">
-          <span class="boot-progress-bar" />
-        </div>
-        <p class="boot-status">READY</p>
-      </div>
-    </div>
+    <BootLoader v-if="!isProjectRoute" :visible="bootVisible" />
 
-    <main class="page">
+    <ProjectLauncher v-if="isProjectRoute" />
+
+    <main v-else class="page">
       <div
         class="offline-banner"
         :class="{ 'is-visible': isOffline }"
@@ -311,11 +296,7 @@ onUnmounted(() => {
         </div>
       </nav>
 
-      <section
-        v-show="!isCorporate"
-        class="screen"
-        aria-label="MatteoOS interface"
-      >
+      <section v-show="!isCorporate" class="screen" aria-label="MatteoOS interface">
         <div class="window-bar">
           <span class="dots" aria-hidden="true">
             <span class="dot" />
@@ -340,8 +321,8 @@ onUnmounted(() => {
                 <h1>Matteo Lullo</h1>
                 <span class="role">Creative Systems Builder</span>
                 <p class="claim">
-                  Progetto <strong>sistemi</strong>, community ed esperienze che
-                  le persone amano usare.
+                  Progetto <strong>sistemi</strong>, community ed esperienze che le
+                  persone amano usare.
                 </p>
               </div>
             </div>
@@ -360,20 +341,16 @@ onUnmounted(() => {
                 </ul>
                 <p class="mini-bio">
                   <strong>Ciao, sono Matteo Lullo - Reddohige sul web.</strong>
-                  Sono uno sviluppatore frontend, creativo e community builder
-                  con base vicino a Milano. Mi piace creare cose che uniscono
-                  tecnologia, gioco, cultura pop e persone.
+                  Sono uno sviluppatore frontend, creativo e community builder con base
+                  vicino a Milano. Mi piace creare cose che uniscono tecnologia, gioco,
+                  cultura pop e persone.
                 </p>
                 <div class="quote-panel">
-                  "Ogni progetto parte sempre dalla stessa domanda: le persone
-                  si divertiranno davvero a usarlo?"
+                  "Ogni progetto parte sempre dalla stessa domanda: le persone si
+                  divertiranno davvero a usarlo?"
                 </div>
                 <div class="actions">
-                  <button
-                    type="button"
-                    class="button-one"
-                    @click="goCorporate"
-                  >
+                  <button type="button" class="button-one" @click="goCorporate">
                     Profilo tecnico
                   </button>
                   <button
@@ -388,33 +365,31 @@ onUnmounted(() => {
                 <div class="extended-bio" :class="{ 'is-open': expandedBio }">
                   <div>
                     <p>
-                      Sono uno sviluppatore frontend, creativo e community
-                      builder con base a Inzago, vicino a Milano.
+                      Sono uno sviluppatore frontend, creativo e community builder con
+                      base a Inzago, vicino a Milano.
                     </p>
                     <p>
-                      Negli anni ho scoperto che il codice non è mai stato il
-                      mio vero obiettivo. Quello che mi entusiasma davvero è
-                      progettare sistemi, prodotti ed esperienze che rendano la
-                      vita delle persone più semplice, più divertente o
-                      semplicemente migliore.
+                      Negli anni ho scoperto che il codice non è mai stato il mio vero
+                      obiettivo. Quello che mi entusiasma davvero è progettare sistemi,
+                      prodotti ed esperienze che rendano la vita delle persone più
+                      semplice, più divertente o semplicemente migliore.
                     </p>
                     <p>
                       Ho parlato di web performance durante eventi e conferenze,
-                      organizzato community dedicate ai giochi di ruolo,
-                      Beyblade e fandom, calcato i palchi come bassista per
-                      oltre dieci anni e continuo ancora oggi a creare progetti
-                      che uniscono tecnologia e creatività.
+                      organizzato community dedicate ai giochi di ruolo, Beyblade e
+                      fandom, calcato i palchi come bassista per oltre dieci anni e
+                      continuo ancora oggi a creare progetti che uniscono tecnologia e
+                      creatività.
                     </p>
                     <p>
-                      Uso l'AI come aiutante nelle sfide: non come scorciatoia,
-                      ma come compagna di ragionamento per esplorare idee,
-                      validare soluzioni e arrivare più velocemente al cuore dei
-                      problemi.
+                      Uso l'AI come aiutante nelle sfide: non come scorciatoia, ma come
+                      compagna di ragionamento per esplorare idee, validare soluzioni e
+                      arrivare più velocemente al cuore dei problemi.
                     </p>
                     <p>
-                      Credo nella curiosità, nella condivisione delle conoscenze
-                      e nell'idea che le esperienze migliori nascano quando
-                      qualcuno decide di tendere una mano agli altri.
+                      Credo nella curiosità, nella condivisione delle conoscenze e
+                      nell'idea che le esperienze migliori nascano quando qualcuno decide
+                      di tendere una mano agli altri.
                     </p>
                   </div>
                 </div>
@@ -462,11 +437,7 @@ onUnmounted(() => {
                   >
                     I Figli del Crepuscolo - materiali campagna multitavolo
                   </a>
-                  <a
-                    href="https://reddohige.itch.io/"
-                    target="_blank"
-                    rel="noopener"
-                  >
+                  <a href="https://reddohige.itch.io/" target="_blank" rel="noopener">
                     Giochi e prototipi su itch.io
                   </a>
                 </div>
@@ -535,8 +506,8 @@ onUnmounted(() => {
                 <h1>Matteo Lullo</h1>
                 <span class="role">Creative Systems Builder</span>
                 <p class="claim">
-                  I build <strong>systems</strong>, communities and experiences
-                  that people genuinely enjoy using.
+                  I build <strong>systems</strong>, communities and experiences that
+                  people genuinely enjoy using.
                 </p>
               </div>
             </div>
@@ -555,20 +526,16 @@ onUnmounted(() => {
                 </ul>
                 <p class="mini-bio">
                   <strong>Hi, I'm Matteo Lullo - Reddohige online.</strong>
-                  I'm a frontend developer, creative builder and community
-                  organizer based near Milan. I love creating things where
-                  technology, games, pop culture and people meet.
+                  I'm a frontend developer, creative builder and community organizer based
+                  near Milan. I love creating things where technology, games, pop culture
+                  and people meet.
                 </p>
                 <div class="quote-panel">
-                  "Every project starts with the same question: will people
-                  genuinely enjoy using this?"
+                  "Every project starts with the same question: will people genuinely
+                  enjoy using this?"
                 </div>
                 <div class="actions">
-                  <button
-                    type="button"
-                    class="button-one"
-                    @click="goCorporate"
-                  >
+                  <button type="button" class="button-one" @click="goCorporate">
                     Technical profile
                   </button>
                   <button
@@ -583,31 +550,29 @@ onUnmounted(() => {
                 <div class="extended-bio" :class="{ 'is-open': expandedBio }">
                   <div>
                     <p>
-                      I'm a frontend developer, creative builder and community
-                      organizer based near Milan, Italy.
+                      I'm a frontend developer, creative builder and community organizer
+                      based near Milan, Italy.
                     </p>
                     <p>
-                      Over the years I realized that writing code was never my
-                      real goal. What truly motivates me is designing systems,
-                      products and experiences that make people's lives easier,
-                      more enjoyable or simply more meaningful.
+                      Over the years I realized that writing code was never my real goal.
+                      What truly motivates me is designing systems, products and
+                      experiences that make people's lives easier, more enjoyable or
+                      simply more meaningful.
                     </p>
                     <p>
-                      I've spoken about web performance at conferences, built
-                      communities around tabletop RPGs, Beyblade and fandom
-                      culture, spent over a decade performing on stage as a bass
-                      player, and I still love creating projects where
-                      technology meets creativity.
+                      I've spoken about web performance at conferences, built communities
+                      around tabletop RPGs, Beyblade and fandom culture, spent over a
+                      decade performing on stage as a bass player, and I still love
+                      creating projects where technology meets creativity.
                     </p>
                     <p>
-                      I use AI as a helper when facing challenges: not as a
-                      shortcut, but as a thinking companion to explore ideas,
-                      validate solutions and get faster to the heart of a
-                      problem.
+                      I use AI as a helper when facing challenges: not as a shortcut, but
+                      as a thinking companion to explore ideas, validate solutions and get
+                      faster to the heart of a problem.
                     </p>
                     <p>
-                      I believe in curiosity, sharing knowledge and creating
-                      spaces where people feel welcome.
+                      I believe in curiosity, sharing knowledge and creating spaces where
+                      people feel welcome.
                     </p>
                   </div>
                 </div>
@@ -655,11 +620,7 @@ onUnmounted(() => {
                   >
                     Children of Twilight - multi-table campaign materials
                   </a>
-                  <a
-                    href="https://reddohige.itch.io/"
-                    target="_blank"
-                    rel="noopener"
-                  >
+                  <a href="https://reddohige.itch.io/" target="_blank" rel="noopener">
                     Games and prototypes on itch.io
                   </a>
                 </div>
@@ -726,14 +687,14 @@ onUnmounted(() => {
             <p class="corporate-kicker">Personal Profile</p>
             <h1 class="corporate-title">Matteo Lullo</h1>
             <p class="corporate-role">
-              Software engineer e frontend developer per piattaforme corporate,
-              media digitali e customer care.
+              Software engineer e frontend developer per piattaforme corporate, media
+              digitali e customer care.
             </p>
             <p class="corporate-lead">
-              Porto oltre dieci anni di esperienza nello sviluppo web, dalla
-              realizzazione di interfacce e componenti front-end
-              all'ottimizzazione performance, fino alla gestione di rilasci,
-              integrazioni CMS e collaborazione con team e stakeholder.
+              Porto oltre dieci anni di esperienza nello sviluppo web, dalla realizzazione
+              di interfacce e componenti front-end all'ottimizzazione performance, fino
+              alla gestione di rilasci, integrazioni CMS e collaborazione con team e
+              stakeholder.
             </p>
             <div class="actions">
               <a
@@ -752,43 +713,35 @@ onUnmounted(() => {
                 {{ expandedBio ? "Chiudi bio" : "Leggi bio estesa" }}
               </button>
             </div>
-            <div
-              class="extended-bio corporate-bio"
-              :class="{ 'is-open': expandedBio }"
-            >
+            <div class="extended-bio corporate-bio" :class="{ 'is-open': expandedBio }">
               <div>
                 <p>
-                  Attualmente lavoro come Software Engineer in iliad, dove
-                  sviluppo applicazioni web per piattaforme corporate e customer
-                  care, contribuendo anche a progetti in collaborazione con il
-                  gruppo iliad / Free Mobile.
+                  Attualmente lavoro come Software Engineer in iliad, dove sviluppo
+                  applicazioni web per piattaforme corporate e customer care, contribuendo
+                  anche a progetti in collaborazione con il gruppo iliad / Free Mobile.
                 </p>
                 <p>
-                  Mi occupo principalmente di frontend con Vue.js, Nuxt.js,
-                  Angular e TypeScript, integrando quando serve componenti
-                  backend in PHP, Python e Node.js. Ho integrato Strapi in
-                  progetti corporate per migliorare gestione ed efficienza dei
-                  contenuti.
+                  Mi occupo principalmente di frontend con Vue.js, Nuxt.js, Angular e
+                  TypeScript, integrando quando serve componenti backend in PHP, Python e
+                  Node.js. Ho integrato Strapi in progetti corporate per migliorare
+                  gestione ed efficienza dei contenuti.
                 </p>
                 <p>
-                  In precedenza ho lavorato su prodotti digitali ad alto
-                  traffico per RCS Media Group e Sky Italia, occupandomi di
-                  componenti front-end, HTML/SCSS, JavaScript ES6, testing,
-                  integrazione AEM/SSI, SEO tecnica e ottimizzazione delle
-                  performance con attenzione alle Google Web Vitals.
+                  In precedenza ho lavorato su prodotti digitali ad alto traffico per RCS
+                  Media Group e Sky Italia, occupandomi di componenti front-end,
+                  HTML/SCSS, JavaScript ES6, testing, integrazione AEM/SSI, SEO tecnica e
+                  ottimizzazione delle performance con attenzione alle Google Web Vitals.
                 </p>
                 <p>
-                  Ho ricoperto ruoli di focal point e coordinamento operativo,
-                  seguendo consulenti, team editoriali e stakeholder di
-                  marketing. Lavoro con Docker, Argo, MinIO, Git e rilasci via
-                  Docker/SSH, cercando sempre un flusso snello, sostenibile e
-                  orientato alla qualità.
+                  Ho ricoperto ruoli di focal point e coordinamento operativo, seguendo
+                  consulenti, team editoriali e stakeholder di marketing. Lavoro con
+                  Docker, Argo, MinIO, Git e rilasci via Docker/SSH, cercando sempre un
+                  flusso snello, sostenibile e orientato alla qualità.
                 </p>
                 <p>
-                  Uso l'AI come supporto operativo e strategico nelle sfide di
-                  progetto: mi aiuta a ragionare meglio, accelerare analisi e
-                  prototipi, confrontare alternative e mantenere alta la qualità
-                  delle decisioni tecniche.
+                  Uso l'AI come supporto operativo e strategico nelle sfide di progetto:
+                  mi aiuta a ragionare meglio, accelerare analisi e prototipi, confrontare
+                  alternative e mantenere alta la qualità delle decisioni tecniche.
                 </p>
               </div>
             </div>
@@ -827,14 +780,13 @@ onUnmounted(() => {
             <p class="corporate-kicker">Personal Profile</p>
             <h1 class="corporate-title">Matteo Lullo</h1>
             <p class="corporate-role">
-              Software engineer and frontend developer for corporate platforms,
-              digital media and customer care tools.
+              Software engineer and frontend developer for corporate platforms, digital
+              media and customer care tools.
             </p>
             <p class="corporate-lead">
-              I bring over ten years of experience in web development, from
-              front-end interfaces and components to performance optimization,
-              release workflows, CMS integrations and collaboration with teams
-              and stakeholders.
+              I bring over ten years of experience in web development, from front-end
+              interfaces and components to performance optimization, release workflows,
+              CMS integrations and collaboration with teams and stakeholders.
             </p>
             <div class="actions">
               <a
@@ -853,43 +805,37 @@ onUnmounted(() => {
                 {{ expandedBio ? "Close bio" : "Read extended bio" }}
               </button>
             </div>
-            <div
-              class="extended-bio corporate-bio"
-              :class="{ 'is-open': expandedBio }"
-            >
+            <div class="extended-bio corporate-bio" :class="{ 'is-open': expandedBio }">
               <div>
                 <p>
                   I currently work as a Software Engineer at iliad, building web
-                  applications for corporate platforms and customer care
-                  workflows, also contributing to projects in collaboration with
-                  the iliad / Free Mobile group.
+                  applications for corporate platforms and customer care workflows, also
+                  contributing to projects in collaboration with the iliad / Free Mobile
+                  group.
                 </p>
                 <p>
-                  My main focus is frontend development with Vue.js, Nuxt.js,
-                  Angular and TypeScript, with backend integrations in PHP,
-                  Python and Node.js when needed. I have integrated Strapi in
-                  corporate projects to improve content management and
-                  efficiency.
+                  My main focus is frontend development with Vue.js, Nuxt.js, Angular and
+                  TypeScript, with backend integrations in PHP, Python and Node.js when
+                  needed. I have integrated Strapi in corporate projects to improve
+                  content management and efficiency.
                 </p>
                 <p>
-                  Previously, I worked on high-traffic digital products for RCS
-                  Media Group and Sky Italia, building front-end components,
-                  HTML/SCSS layouts, JavaScript ES6 features, tests, AEM/SSI
-                  integrations, technical SEO and performance optimizations with
-                  a focus on Google Web Vitals.
+                  Previously, I worked on high-traffic digital products for RCS Media
+                  Group and Sky Italia, building front-end components, HTML/SCSS layouts,
+                  JavaScript ES6 features, tests, AEM/SSI integrations, technical SEO and
+                  performance optimizations with a focus on Google Web Vitals.
                 </p>
                 <p>
-                  I have acted as focal point and operational coordinator,
-                  working with consultants, editorial teams and marketing
-                  stakeholders. I use Docker, Argo, MinIO, Git and Docker/SSH
-                  releases, always aiming for lean, sustainable and
-                  quality-oriented workflows.
+                  I have acted as focal point and operational coordinator, working with
+                  consultants, editorial teams and marketing stakeholders. I use Docker,
+                  Argo, MinIO, Git and Docker/SSH releases, always aiming for lean,
+                  sustainable and quality-oriented workflows.
                 </p>
                 <p>
-                  I use AI as an operational and strategic support when facing
-                  project challenges: it helps me reason better, accelerate
-                  analysis and prototyping, compare alternatives and keep the
-                  quality of technical decisions high.
+                  I use AI as an operational and strategic support when facing project
+                  challenges: it helps me reason better, accelerate analysis and
+                  prototyping, compare alternatives and keep the quality of technical
+                  decisions high.
                 </p>
               </div>
             </div>
