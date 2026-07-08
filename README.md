@@ -135,7 +135,11 @@ Su GitHub aggiungi i secret in:
 Settings -> Secrets and variables -> Actions -> New repository secret
 ```
 
-Secret consigliati:
+Devono essere `Repository secrets`, non `Variables`. Se vengono inseriti come
+variabili, il workflow li vede vuoti e il deploy fallisce con un errore tipo
+`Input required and not supplied: server`.
+
+Secret richiesti:
 
 ```text
 TOPHOST_FTP_SERVER

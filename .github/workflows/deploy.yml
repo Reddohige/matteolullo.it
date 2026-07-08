@@ -32,6 +32,18 @@ jobs:
       - name: Check and build
         run: yarn quality
 
+      - name: Validate FTP secrets
+        env:
+          TOPHOST_FTP_SERVER: ${{ secrets.TOPHOST_FTP_SERVER }}
+          TOPHOST_FTP_USERNAME: ${{ secrets.TOPHOST_FTP_USERNAME }}
+          TOPHOST_FTP_PASSWORD: ${{ secrets.TOPHOST_FTP_PASSWORD }}
+          TOPHOST_FTP_DIR: ${{ secrets.TOPHOST_FTP_DIR }}
+        run: |
+          test -n "$TOPHOST_FTP_SERVER" || (echo "Missing secret: TOPHOST_FTP_SERVER" && exit 1)
+          test -n "$TOPHOST_FTP_USERNAME" || (echo "Missing secret: TOPHOST_FTP_USERNAME" && exit 1)
+          test -n "$TOPHOST_FTP_PASSWORD" || (echo "Missing secret: TOPHOST_FTP_PASSWORD" && exit 1)
+          test -n "$TOPHOST_FTP_DIR" || (echo "Missing secret: TOPHOST_FTP_DIR" && exit 1)
+
       - name: Deploy site to Tophost via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
