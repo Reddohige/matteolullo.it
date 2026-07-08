@@ -125,9 +125,9 @@ Il deploy è diviso in due parti:
 - carica solo i file generati in `.output/public/prj/` dentro la cartella
   remota `prj/`.
 
-In entrambi i passaggi `dangerous-clean-slate` è disattivato, quindi l'action
-non svuota le cartelle remote prima dell'upload. Questo serve a non cancellare
-gli altri tool già presenti via FTP dentro `/prj/`.
+Il deploy usa `lftp` direttamente dal runner GitHub, con upload incrementale e
+senza cancellazione dei file remoti non presenti nel build. Questo serve a non
+cancellare gli altri tool già presenti via FTP dentro `/prj/`.
 
 Su GitHub aggiungi i secret in:
 
@@ -179,7 +179,7 @@ Se il deploy fallisce con `ETIMEDOUT` sulla porta `21`, significa che GitHub
 non riesce ad aprire la connessione FTP verso il server indicato. In quel caso
 controlla nel pannello Tophost che host, protocollo e porta siano quelli
 corretti. Se il servizio fosse solo SFTP, questo workflow va cambiato perché
-`SamKirkland/FTP-Deploy-Action` supporta FTP/FTPS, non SFTP.
+ora è configurato per FTP/FTPS tramite `lftp`.
 
 Dopo aver configurato i secret:
 

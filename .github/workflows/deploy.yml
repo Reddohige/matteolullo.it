@@ -32,6 +32,9 @@ jobs:
       - name: Check and build
         run: yarn quality
 
+      - name: Install deploy client
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
       - name: Validate FTP secrets
         env:
           TOPHOST_FTP_SERVER: ${{ secrets.TOPHOST_FTP_SERVER }}
@@ -45,34 +48,27 @@ jobs:
           test -n "$TOPHOST_FTP_DIR" || (echo "Missing secret: TOPHOST_FTP_DIR" && exit 1)
 
       - name: Deploy site to Tophost via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
-        with:
-          server: ${{ secrets.TOPHOST_FTP_SERVER }}
-          username: ${{ secrets.TOPHOST_FTP_USERNAME }}
-          password: ${{ secrets.TOPHOST_FTP_PASSWORD }}
-          protocol: ${{ secrets.TOPHOST_FTP_PROTOCOL || 'ftp' }}
-          port: ${{ secrets.TOPHOST_FTP_PORT || 21 }}
-          local-dir: ./.output/public/
-          server-dir: ${{ secrets.TOPHOST_FTP_DIR }}
-          timeout: 60000
-          dangerous-clean-slate: false
-          exclude: |
-            **/.git*
-            **/.git*/**
-            prj/**
+        env:
+          TOPHOST_FTP_SERVER: ${{ secrets.TOPHOST_FTP_SERVER }}
+          TOPHOST_FTP_USERNAME: ${{ secrets.TOPHOST_FTP_USERNAME }}
+          TOPHOST_FTP_PASSWORD: ${{ secrets.TOPHOST_FTP_PASSWORD }}
+          TOPHOST_FTP_DIR: ${{ secrets.TOPHOST_FTP_DIR }}
+          TOPHOST_FTP_PROTOCOL: ${{ secrets.TOPHOST_FTP_PROTOCOL || 'ftp' }}
+          TOPHOST_FTP_PORT: ${{ secrets.TOPHOST_FTP_PORT || 21 }}
+        run: |
+          lftp -u "$TOPHOST_FTP_USERNAME","$TOPHOST_FTP_PASSWORD" \
+            -p "$TOPHOST_FTP_PORT" "$TOPHOST_FTP_PROTOCOL://$TOPHOST_FTP_SERVER" \
+            -e "set net:timeout 30; set net:max-retries 3; set ftp:passive-mode on; set ftp:ssl-allow no; mirror --reverse --verbose --only-newer --no-perms --exclude-glob prj/** ./.output/public/ $TOPHOST_FTP_DIR; bye"
 
       - name: Deploy prj index to Tophost via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
-        with:
-          server: ${{ secrets.TOPHOST_FTP_SERVER }}
-          username: ${{ secrets.TOPHOST_FTP_USERNAME }}
-          password: ${{ secrets.TOPHOST_FTP_PASSWORD }}
-          protocol: ${{ secrets.TOPHOST_FTP_PROTOCOL || 'ftp' }}
-          port: ${{ secrets.TOPHOST_FTP_PORT || 21 }}
-          local-dir: ./.output/public/prj/
-          server-dir: ${{ secrets.TOPHOST_FTP_DIR }}prj/
-          timeout: 60000
-          dangerous-clean-slate: false
-          exclude: |
-            **/.git*
-            **/.git*/**
+        env:
+          TOPHOST_FTP_SERVER: ${{ secrets.TOPHOST_FTP_SERVER }}
+          TOPHOST_FTP_USERNAME: ${{ secrets.TOPHOST_FTP_USERNAME }}
+          TOPHOST_FTP_PASSWORD: ${{ secrets.TOPHOST_FTP_PASSWORD }}
+          TOPHOST_FTP_DIR: ${{ secrets.TOPHOST_FTP_DIR }}
+          TOPHOST_FTP_PROTOCOL: ${{ secrets.TOPHOST_FTP_PROTOCOL || 'ftp' }}
+          TOPHOST_FTP_PORT: ${{ secrets.TOPHOST_FTP_PORT || 21 }}
+        run: |
+          lftp -u "$TOPHOST_FTP_USERNAME","$TOPHOST_FTP_PASSWORD" \
+            -p "$TOPHOST_FTP_PORT" "$TOPHOST_FTP_PROTOCOL://$TOPHOST_FTP_SERVER" \
+            -e "set net:timeout 30; set net:max-retries 3; set ftp:passive-mode on; set ftp:ssl-allow no; mirror --reverse --verbose --only-newer --no-perms ./.output/public/prj/ ${TOPHOST_FTP_DIR}prj/; bye"
