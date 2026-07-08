@@ -1,4 +1,4 @@
-const CACHE_NAME = "matteolullo-it-v3";
+const CACHE_NAME = "matteolullo-it-v4";
 const PRECACHE_URLS = [
   "/",
   "/200.html",
@@ -13,6 +13,17 @@ const PRECACHE_URLS = [
 
 const isHttpRequest = (request) =>
   request.url.startsWith("http://") || request.url.startsWith("https://");
+
+const isRuntimeAsset = (request) => {
+  const url = new URL(request.url);
+
+  return (
+    url.pathname.startsWith("/_nuxt/") ||
+    url.pathname.startsWith("/__nuxt") ||
+    url.pathname.startsWith("/@vite") ||
+    url.pathname.includes("/@fs/")
+  );
+};
 
 const putInCache = async (request, response) => {
   if (!response || response.status >= 400) {
@@ -101,6 +112,10 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
 
   if (request.method !== "GET" || !isHttpRequest(request)) {
+    return;
+  }
+
+  if (isRuntimeAsset(request)) {
     return;
   }
 

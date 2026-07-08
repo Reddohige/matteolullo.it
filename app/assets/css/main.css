@@ -477,7 +477,7 @@ a {
   border-radius: var(--radius);
   background: var(--panel);
   box-shadow: var(--shadow);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .window-bar {
@@ -486,6 +486,7 @@ a {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.75rem 0.9rem;
+  border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;
   background: linear-gradient(90deg, rgba(69, 240, 223, 0.12), rgba(255, 107, 53, 0.1));
   border-bottom: 1px solid var(--border);
   font-family: "VT323", monospace;
@@ -613,6 +614,7 @@ h1 {
   display: grid;
   grid-template-columns: 1.25fr 0.75fr;
   gap: 1rem;
+  align-items: start;
   margin-top: 1.5rem;
 }
 
@@ -621,6 +623,10 @@ h1 {
   background: rgba(5, 8, 16, 0.66);
   border-radius: 14px;
   padding: 1.15rem;
+}
+
+.status-card {
+  align-self: start;
 }
 
 .card-title {
@@ -636,7 +642,6 @@ h1 {
   margin-top: 1rem;
 }
 
-.process-list,
 .tag-list {
   display: grid;
   gap: 0.55rem;
@@ -645,7 +650,6 @@ h1 {
   list-style: none;
 }
 
-.process-list li,
 .tag-list li {
   padding: 0.55rem 0.65rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -654,40 +658,111 @@ h1 {
   font-size: 1.35rem;
 }
 
-.process-list li {
+.code-terminal {
   position: relative;
-  min-height: 2.62rem;
-  color: var(--muted);
+  isolation: isolate;
   overflow: hidden;
+  border: 1px solid rgba(0, 255, 149, 0.42);
+  background:
+    linear-gradient(rgba(2, 8, 8, 0.92), rgba(3, 12, 9, 0.95)),
+    radial-gradient(circle at 12% 20%, rgba(0, 255, 149, 0.18), transparent 30%),
+    radial-gradient(circle at 84% 74%, rgba(69, 240, 223, 0.12), transparent 32%);
+  box-shadow:
+    inset 0 0 34px rgba(0, 255, 149, 0.1),
+    0 18px 55px rgba(0, 0, 0, 0.22),
+    0 0 28px rgba(0, 255, 149, 0.08);
 }
 
-.process-list li::before {
-  content: "> ";
-  color: var(--orange);
+.code-terminal::before {
+  content: "マ ト テ オ シ ス テ ム 構 築 夢 遊 技 侍 光 影 人 ネ オ ン 回 路 心 祭 旅 物 語";
+  position: absolute;
+  inset: -58% -8% auto;
+  z-index: -1;
+  color: rgba(0, 255, 149, 0.18);
+  font-family: "VT323", monospace;
+  font-size: 2.12rem;
+  line-height: 1.18;
+  letter-spacing: 0.46rem;
+  text-align: justify;
+  text-shadow:
+    0 0 14px rgba(0, 255, 149, 0.42),
+    0 0 28px rgba(69, 240, 223, 0.2);
+  word-break: break-all;
+  animation: matrix-fall 6.8s linear infinite;
 }
 
-.process-list li.is-active {
-  border-color: rgba(69, 240, 223, 0.34);
-  background: rgba(69, 240, 223, 0.07);
-  color: var(--text);
-}
-
-.process-list li.is-active::after {
+.code-terminal::after {
   content: "";
-  display: inline-block;
-  width: 0.52rem;
-  height: 1.05rem;
-  margin-left: 0.16rem;
-  background: var(--cyan);
-  box-shadow: 0 0 16px rgba(69, 240, 223, 0.48);
-  transform: translateY(0.14rem);
-  animation: blink 0.82s steps(2, start) infinite;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0, 255, 149, 0.055) 0,
+      rgba(0, 255, 149, 0.055) 1px,
+      transparent 1px,
+      transparent 5px
+    ),
+    linear-gradient(90deg, transparent, rgba(0, 255, 149, 0.1), transparent);
+  mix-blend-mode: screen;
+  opacity: 0.5;
 }
 
-.process-line {
-  color: inherit;
+.code-terminal-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.56rem 0.7rem;
+  border-bottom: 1px solid rgba(0, 255, 149, 0.28);
+  background: rgba(0, 255, 149, 0.09);
+  color: var(--green);
+  font-family: "VT323", monospace;
+  font-size: 1.13rem;
+  text-transform: uppercase;
+}
+
+.code-terminal pre {
+  position: relative;
+  z-index: 1;
+  min-height: 16rem;
+  margin: 0;
+  padding: 0.95rem 1rem 1.1rem;
+  color: #b7ffda;
+  font-family: "VT323", monospace;
+  font-size: clamp(1.12rem, 2vw, 1.46rem);
+  line-height: 1.42;
+  white-space: pre-wrap;
+}
+
+.code-line {
+  display: block;
+  min-height: 1.42em;
+  color: rgba(0, 255, 149, 0.76);
   overflow-wrap: anywhere;
-  white-space: normal;
+  text-shadow:
+    0 0 8px rgba(0, 255, 149, 0.26),
+    0 0 18px rgba(69, 240, 223, 0.1);
+  transition:
+    color 0.18s ease,
+    text-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.code-line.is-active {
+  color: #ecfff6;
+  background: linear-gradient(90deg, rgba(0, 255, 149, 0.16), transparent 75%);
+  text-shadow:
+    0 0 10px rgba(236, 255, 246, 0.32),
+    0 0 18px rgba(0, 255, 149, 0.56),
+    0 0 30px rgba(69, 240, 223, 0.22);
+}
+
+.code-line.is-active::after {
+  content: "█";
+  margin-left: 0.16rem;
+  color: var(--cyan);
+  animation: blink 0.82s steps(2, start) infinite;
 }
 
 .tag-list {
@@ -901,7 +976,7 @@ body.corporate-mode .mode-button.active {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.75fr);
   gap: clamp(1rem, 4vw, 2rem);
-  align-items: center;
+  align-items: start;
 }
 
 .corporate-card,
@@ -1012,6 +1087,7 @@ body.corporate-mode .mode-button.active {
 }
 
 .corporate-photo {
+  align-self: start;
   padding: 0.75rem;
 }
 
@@ -1317,6 +1393,16 @@ body.corporate-mode .mode-button.active {
     animation: load-in 0.5s ease both;
   }
 
+  .scroll-reveal {
+    animation: scroll-reveal both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 28%;
+  }
+
+  .scroll-reveal:nth-child(2) {
+    animation-range: entry 6% cover 34%;
+  }
+
   @keyframes load-in {
     from {
       opacity: 0;
@@ -1327,6 +1413,41 @@ body.corporate-mode .mode-button.active {
       opacity: 1;
       transform: translateY(0) scale(1);
     }
+  }
+
+  @keyframes scroll-reveal {
+    from {
+      opacity: 0.1;
+      transform: translateY(24px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes matrix-fall {
+    from {
+      transform: translateY(-28%);
+    }
+
+    to {
+      transform: translateY(168%);
+    }
+  }
+}
+
+@media (min-width: 861px) {
+  .status-card {
+    position: sticky;
+    top: 1.25rem;
+    z-index: 3;
+  }
+
+  .corporate-photo {
+    position: sticky;
+    top: 1rem;
   }
 }
 
@@ -1372,6 +1493,11 @@ body.corporate-mode .mode-button.active {
   .profile-frame,
   .corporate-photo {
     margin: 0 auto;
+  }
+
+  .status-card,
+  .corporate-photo {
+    position: static;
   }
 
   h1 {

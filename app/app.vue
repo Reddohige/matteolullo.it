@@ -7,29 +7,39 @@ const expandedBio = ref(false);
 const isOffline = ref(false);
 const buildLoopScripts = {
   it: [
-    'const idea = scan("curiosity");',
-    "prototype.build(idea);",
-    "people.invite({ vibe: 'welcome' });",
-    "feedback.listen();",
-    "project.improve();",
-    "return repeat();",
+    "async function BUILD_LOOP() {",
+    '  const idea = await scan("curiosity");',
+    "  const prototype = craft(idea);",
+    "  community.invite({ vibe: 'welcome' });",
+    "  await feedback.listen();",
+    "  return prototype.improve().repeat();",
+    "}",
   ],
   en: [
-    'const idea = scan("curiosity");',
-    "prototype.build(idea);",
-    "people.invite({ vibe: 'welcome' });",
-    "feedback.listen();",
-    "project.improve();",
-    "return repeat();",
+    "async function BUILD_LOOP() {",
+    '  const idea = await scan("curiosity");',
+    "  const prototype = craft(idea);",
+    "  community.invite({ vibe: 'welcome' });",
+    "  await feedback.listen();",
+    "  return prototype.improve().repeat();",
+    "}",
   ],
 } as const;
-const displayedBuildLines = ref<string[]>(["waiting for runtime...", "", "", "", "", ""]);
+const displayedBuildLines = ref<string[]>([
+  "waiting for runtime...",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+]);
 const activeBuildLine = ref(0);
 const bootLoaderDuration = 6500;
 const buildLoopBootDelay = 5200;
 const buildLoopTypeDelay = 82;
 const buildLoopLineDelay = 700;
-const offlineCacheName = "matteolullo-it-v3";
+const offlineCacheName = "matteolullo-it-v4";
 const offlineStaticUrls = [
   "/",
   "/200.html",
@@ -64,7 +74,7 @@ const updateOnlineStatus = () => {
 };
 
 const registerServiceWorker = () => {
-  if (!import.meta.client || !("serviceWorker" in navigator)) {
+  if (!import.meta.client || import.meta.dev || !("serviceWorker" in navigator)) {
     return;
   }
 
@@ -308,7 +318,7 @@ onUnmounted(() => {
 
         <div class="content">
           <section v-show="language === 'it'" lang="it">
-            <div class="hero">
+            <div class="hero scroll-reveal">
               <div class="profile-frame">
                 <img
                   src="/img/io-def.png"
@@ -328,17 +338,20 @@ onUnmounted(() => {
             </div>
 
             <div class="boot-grid">
-              <article class="card">
+              <article class="card scroll-reveal">
                 <h2 class="card-title">BUILD_LOOP()</h2>
-                <ul class="process-list">
-                  <li
+                <div class="code-terminal" aria-label="Build loop terminal">
+                  <div class="code-terminal-bar" aria-hidden="true">
+                    <span>matteoOS://build-loop</span>
+                    <span>実行中</span>
+                  </div>
+                  <pre><code><span
                     v-for="(line, index) in displayedBuildLines"
                     :key="`it-build-${index}`"
+                    class="code-line"
                     :class="{ 'is-active': index === activeBuildLine }"
-                  >
-                    <span class="process-line">{{ line }}</span>
-                  </li>
-                </ul>
+                  >{{ line || " " }}</span></code></pre>
+                </div>
                 <p class="mini-bio">
                   <strong>Ciao, sono Matteo Lullo - Reddohige sul web.</strong>
                   Sono uno sviluppatore frontend, creativo e community builder con base
@@ -364,10 +377,6 @@ onUnmounted(() => {
                 </div>
                 <div class="extended-bio" :class="{ 'is-open': expandedBio }">
                   <div>
-                    <p>
-                      Sono uno sviluppatore frontend, creativo e community builder con
-                      base a Inzago, vicino a Milano.
-                    </p>
                     <p>
                       Negli anni ho scoperto che il codice non è mai stato il mio vero
                       obiettivo. Quello che mi entusiasma davvero è progettare sistemi,
@@ -449,7 +458,7 @@ onUnmounted(() => {
                 </div>
               </article>
 
-              <aside class="card">
+              <aside class="card status-card">
                 <h2 class="card-title">STATUS</h2>
                 <ul class="tag-list" aria-label="Cosa costruisco">
                   <li>frontend</li>
@@ -493,7 +502,7 @@ onUnmounted(() => {
           </section>
 
           <section v-show="language === 'en'" lang="en">
-            <div class="hero">
+            <div class="hero scroll-reveal">
               <div class="profile-frame">
                 <img
                   src="/img/io-def.png"
@@ -513,17 +522,20 @@ onUnmounted(() => {
             </div>
 
             <div class="boot-grid">
-              <article class="card">
+              <article class="card scroll-reveal">
                 <h2 class="card-title">BUILD_LOOP()</h2>
-                <ul class="process-list">
-                  <li
+                <div class="code-terminal" aria-label="Build loop terminal">
+                  <div class="code-terminal-bar" aria-hidden="true">
+                    <span>matteoOS://build-loop</span>
+                    <span>実行中</span>
+                  </div>
+                  <pre><code><span
                     v-for="(line, index) in displayedBuildLines"
                     :key="`en-build-${index}`"
+                    class="code-line"
                     :class="{ 'is-active': index === activeBuildLine }"
-                  >
-                    <span class="process-line">{{ line }}</span>
-                  </li>
-                </ul>
+                  >{{ line || " " }}</span></code></pre>
+                </div>
                 <p class="mini-bio">
                   <strong>Hi, I'm Matteo Lullo - Reddohige online.</strong>
                   I'm a frontend developer, creative builder and community organizer based
@@ -549,10 +561,6 @@ onUnmounted(() => {
                 </div>
                 <div class="extended-bio" :class="{ 'is-open': expandedBio }">
                   <div>
-                    <p>
-                      I'm a frontend developer, creative builder and community organizer
-                      based near Milan, Italy.
-                    </p>
                     <p>
                       Over the years I realized that writing code was never my real goal.
                       What truly motivates me is designing systems, products and
@@ -632,7 +640,7 @@ onUnmounted(() => {
                 </div>
               </article>
 
-              <aside class="card">
+              <aside class="card status-card">
                 <h2 class="card-title">STATUS</h2>
                 <ul class="tag-list" aria-label="What I build">
                   <li>frontend</li>
@@ -683,7 +691,7 @@ onUnmounted(() => {
         aria-label="Corporate profile"
       >
         <div v-show="language === 'it'" lang="it" class="corporate-content">
-          <article class="corporate-card">
+          <article class="corporate-card scroll-reveal">
             <p class="corporate-kicker">Personal Profile</p>
             <h1 class="corporate-title">Matteo Lullo</h1>
             <p class="corporate-role">
@@ -719,6 +727,13 @@ onUnmounted(() => {
                   Attualmente lavoro come Software Engineer in iliad, dove sviluppo
                   applicazioni web per piattaforme corporate e customer care, contribuendo
                   anche a progetti in collaborazione con il gruppo iliad / Free Mobile.
+                </p>
+                <p>
+                  In questo contesto mi sono concentrato molto sul miglioramento
+                  dell'esperienza degli operatori customer care: ho lavorato al redesign
+                  di flussi operativi, alla semplificazione delle interfacce e al
+                  miglioramento di UX e UI della piattaforma interna utilizzata
+                  quotidianamente dagli operatori iliad.
                 </p>
                 <p>
                   Mi occupo principalmente di frontend con Vue.js, Nuxt.js, Angular e
@@ -770,13 +785,13 @@ onUnmounted(() => {
               </a>
             </div>
           </article>
-          <aside class="corporate-photo">
+          <aside class="corporate-photo scroll-reveal">
             <img src="/img/io-corporate.jpeg" alt="Matteo Lullo" />
           </aside>
         </div>
 
         <div v-show="language === 'en'" lang="en" class="corporate-content">
-          <article class="corporate-card">
+          <article class="corporate-card scroll-reveal">
             <p class="corporate-kicker">Personal Profile</p>
             <h1 class="corporate-title">Matteo Lullo</h1>
             <p class="corporate-role">
@@ -812,6 +827,12 @@ onUnmounted(() => {
                   applications for corporate platforms and customer care workflows, also
                   contributing to projects in collaboration with the iliad / Free Mobile
                   group.
+                </p>
+                <p>
+                  A significant part of my work has focused on improving the experience of
+                  customer care operators: redesigning operational flows, simplifying
+                  interfaces and improving the UX/UI of the internal platform used every
+                  day by iliad operators.
                 </p>
                 <p>
                   My main focus is frontend development with Vue.js, Nuxt.js, Angular and
@@ -864,7 +885,7 @@ onUnmounted(() => {
               </a>
             </div>
           </article>
-          <aside class="corporate-photo">
+          <aside class="corporate-photo scroll-reveal">
             <img src="/img/io-corporate.jpeg" alt="Matteo Lullo" />
           </aside>
         </div>
