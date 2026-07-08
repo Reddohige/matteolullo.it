@@ -21,3 +21,35 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+
+### Node / Nuxt ###
+node_modules/
+.nuxt/
+.output/
+.data/
+.nitro/
+.cache/
+dist/
+
+### Yarn ###
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+yarn-error.log*
+
+### Environment ###
+.env
+.env.*
+!.env.example
+
+### Logs ###
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+### System ###
+.DS_Store
+dist
