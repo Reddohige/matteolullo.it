@@ -674,7 +674,7 @@ h1 {
 }
 
 .code-terminal::before {
-  content: "マ ト テ オ シ ス テ ム 構 築 夢 遊 技 侍 光 影 人 ネ オ ン 回 路 心 祭 旅 物 語";
+  content: "マ テ オ シ ス テ ム 構 築 夢 遊 技 侍 光 影 人 ネ オ ン 回 路 心 祭 旅 物 語";
   position: absolute;
   inset: -58% -8% auto;
   z-index: -1;
@@ -1498,6 +1498,30 @@ body.corporate-mode .mode-button.active {
   .status-card,
   .corporate-photo {
     position: static;
+  }
+
+  .code-terminal-bar {
+    font-size: 1rem;
+  }
+
+  .code-terminal::before {
+    inset: -72% -18% auto;
+    font-size: 1.6rem;
+    line-height: 1.08;
+    letter-spacing: 0.28rem;
+  }
+
+  .code-terminal pre {
+    height: 19rem;
+    min-height: 19rem;
+    overflow: hidden;
+    padding: 0.85rem 0.72rem 1rem;
+    font-size: 1.02rem;
+    line-height: 1.32;
+  }
+
+  .code-line {
+    min-height: 1.32em;
   }
 
   h1 {
