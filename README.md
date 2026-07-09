@@ -171,9 +171,10 @@ TOPHOST_FTP_PORT=21
 ```
 
 `TOPHOST_FTP_DIR` dipende dalla cartella pubblica indicata da Tophost, spesso
-la root FTP del dominio o una cartella tipo `/htdocs/`. Deve finire con `/`,
-perché il workflow usa anche `${TOPHOST_FTP_DIR}prj/` per aggiornare la pagina
-dei progetti senza toccare il resto della cartella.
+la root FTP del dominio o una cartella tipo `/htdocs`. Può essere scritto con o
+senza slash finale: il workflow normalizza il valore e usa anche la sottocartella
+`prj/` per aggiornare la pagina dei progetti senza toccare il resto della
+cartella.
 
 Se il deploy fallisce con `ETIMEDOUT` sulla porta `21`, significa che GitHub
 non riesce ad aprire la connessione FTP verso il server indicato. In quel caso

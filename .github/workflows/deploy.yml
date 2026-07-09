@@ -60,25 +60,26 @@ jobs:
           set net:max-retries 2
           set net:reconnect-interval-base 5
           set ftp:passive-mode on
+          set ftp:prefer-epsv no
           set ftp:ssl-allow no
+          set cmd:fail-exit yes
           set ssl:verify-certificate no
           open -u "$TOPHOST_FTP_USERNAME","$TOPHOST_FTP_PASSWORD" -p "$TOPHOST_FTP_PORT" "$TOPHOST_FTP_PROTOCOL://$TOPHOST_FTP_SERVER"
           EOF
 
-      - name: Check FTP connection
+      - name: Normalize FTP target paths
         env:
           TOPHOST_FTP_DIR: ${{ secrets.TOPHOST_FTP_DIR }}
         run: |
-          lftp -e "pwd; cls -la $TOPHOST_FTP_DIR; bye"
+          REMOTE_DIR="${TOPHOST_FTP_DIR%/}/"
+          echo "REMOTE_DIR=$REMOTE_DIR" >> "$GITHUB_ENV"
+          echo "REMOTE_PRJ_DIR=${REMOTE_DIR}prj/" >> "$GITHUB_ENV"
+          echo "Remote target prepared"
+
+      - name: Check FTP login and target
+        run: |
+          lftp -e "cd ${REMOTE_DIR}; pwd; bye"
 
       - name: Deploy site to Tophost via FTP
-        env:
-          TOPHOST_FTP_DIR: ${{ secrets.TOPHOST_FTP_DIR }}
         run: |
-          lftp -e "mirror --reverse --verbose --only-newer --no-perms --parallel=1 --exclude-glob prj/** ./.output/public/ $TOPHOST_FTP_DIR; bye"
-
-      - name: Deploy prj index to Tophost via FTP
-        env:
-          TOPHOST_FTP_DIR: ${{ secrets.TOPHOST_FTP_DIR }}
-        run: |
-          lftp -e "mkdir -p ${TOPHOST_FTP_DIR}prj/; mirror --reverse --verbose --only-newer --no-perms --parallel=1 ./.output/public/prj/ ${TOPHOST_FTP_DIR}prj/; bye"
+          lftp -e "mirror --reverse --verbose --only-newer --no-perms --parallel=1 --exclude-glob prj/** ./.output/public/ ${REMOTE_DIR}; mkdir -p ${REMOTE_PRJ_DIR}; mirror --reverse --verbose --only-newer --no-perms --parallel=1 ./.output/public/prj/ ${REMOTE_PRJ_DIR}; bye"
