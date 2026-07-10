@@ -644,13 +644,13 @@ onUnmounted(() => {
                 <h2 class="card-title">STATUS</h2>
                 <ul class="tag-list" aria-label="What I build">
                   <li>frontend</li>
-                  <li>web performance</li>
+                  <li>web-performance</li>
                   <li>community</li>
-                  <li>game design</li>
+                  <li>game-design</li>
                   <li>beyblade</li>
                   <li>fandom</li>
                   <li>music</li>
-                  <li>future dad</li>
+                  <li>future-dad</li>
                 </ul>
                 <h2 class="card-title connect-title">CONNECT</h2>
                 <div class="socials">
