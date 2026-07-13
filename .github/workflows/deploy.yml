@@ -33,7 +33,7 @@ jobs:
         run: yarn quality
 
       - name: Install deploy client
-        run: sudo apt-get update && sudo apt-get install -y lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp netcat-openbsd
 
       - name: Validate FTP secrets
         env:
@@ -52,7 +52,6 @@ jobs:
           TOPHOST_FTP_SERVER: ${{ secrets.TOPHOST_FTP_SERVER }}
           TOPHOST_FTP_USERNAME: ${{ secrets.TOPHOST_FTP_USERNAME }}
           TOPHOST_FTP_PASSWORD: ${{ secrets.TOPHOST_FTP_PASSWORD }}
-          TOPHOST_FTP_PROTOCOL: ${{ secrets.TOPHOST_FTP_PROTOCOL || 'ftp' }}
           TOPHOST_FTP_PORT: ${{ secrets.TOPHOST_FTP_PORT || 21 }}
         run: |
           cat > ~/.lftprc <<EOF
@@ -61,11 +60,24 @@ jobs:
           set net:reconnect-interval-base 5
           set ftp:passive-mode on
           set ftp:prefer-epsv no
-          set ftp:ssl-allow no
+          set ftp:ssl-allow yes
+          set ftp:ssl-force yes
+          set ftp:ssl-auth TLS
+          set ftp:ssl-protect-data yes
           set cmd:fail-exit yes
           set ssl:verify-certificate no
-          open -u "$TOPHOST_FTP_USERNAME","$TOPHOST_FTP_PASSWORD" -p "$TOPHOST_FTP_PORT" "$TOPHOST_FTP_PROTOCOL://$TOPHOST_FTP_SERVER"
+          open -u "$TOPHOST_FTP_USERNAME","$TOPHOST_FTP_PASSWORD" -p "$TOPHOST_FTP_PORT" "ftp://$TOPHOST_FTP_SERVER"
           EOF
+
+      - name: Check FTP server reachability
+        env:
+          TOPHOST_FTP_SERVER: ${{ secrets.TOPHOST_FTP_SERVER }}
+          TOPHOST_FTP_PORT: ${{ secrets.TOPHOST_FTP_PORT || 21 }}
+        run: |
+          nc -z -w 15 "$TOPHOST_FTP_SERVER" "$TOPHOST_FTP_PORT" || {
+            echo "FTP server is not reachable on the configured port"
+            exit 1
+          }
 
       - name: Normalize FTP target paths
         env:
