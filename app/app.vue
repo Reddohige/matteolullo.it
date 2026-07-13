@@ -39,7 +39,7 @@ const bootLoaderDuration = 6500;
 const buildLoopBootDelay = 5200;
 const buildLoopTypeDelay = 82;
 const buildLoopLineDelay = 700;
-const offlineCacheName = "matteolullo-it-v4";
+const offlineCacheName = "matteolullo-it-v5";
 const offlineStaticUrls = [
   "/",
   "/200.html",
@@ -48,6 +48,7 @@ const offlineStaticUrls = [
   "/img/bg-r.jpg",
   "/img/io-def.png",
   "/img/io-corporate.jpeg",
+  "/img/beyblade-silhouette.png",
   "/doc/Matteo_Lullo_CV.pdf",
   "/prj/",
 ];

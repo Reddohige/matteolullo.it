@@ -1,4 +1,4 @@
-const CACHE_NAME = "matteolullo-it-v4";
+const CACHE_NAME = "matteolullo-it-v5";
 const PRECACHE_URLS = [
   "/",
   "/200.html",
@@ -7,6 +7,7 @@ const PRECACHE_URLS = [
   "/img/bg-r.jpg",
   "/img/io-def.png",
   "/img/io-corporate.jpeg",
+  "/img/beyblade-silhouette.png",
   "/doc/Matteo_Lullo_CV.pdf",
   "/prj/",
 ];
