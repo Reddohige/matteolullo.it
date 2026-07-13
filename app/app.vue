@@ -39,7 +39,7 @@ const bootLoaderDuration = 6500;
 const buildLoopBootDelay = 5200;
 const buildLoopTypeDelay = 82;
 const buildLoopLineDelay = 700;
-const offlineCacheName = "matteolullo-it-v5";
+const offlineCacheName = "matteolullo-it-v6";
 const offlineStaticUrls = [
   "/",
   "/200.html",
@@ -50,6 +50,7 @@ const offlineStaticUrls = [
   "/img/io-corporate.jpeg",
   "/img/beyblade-silhouette.png",
   "/doc/Matteo_Lullo_CV.pdf",
+  "/doc/ENG_Matteo_Lullo_CV.pdf",
   "/prj/",
 ];
 
@@ -806,7 +807,7 @@ onUnmounted(() => {
             </p>
             <div class="actions">
               <a
-                href="/doc/Matteo_Lullo_CV.pdf"
+                href="/doc/ENG_Matteo_Lullo_CV.pdf"
                 target="_blank"
                 rel="noopener"
                 class="button-one corporate-action"
